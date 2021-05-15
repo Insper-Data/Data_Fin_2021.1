@@ -1,13 +1,8 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-import yfinance as yf
-from pandas import DataFrame
 from plotly.subplots import make_subplots
-from pytrends import dailydata
 from pytrends.request import TrendReq
-from datetime import date, datetime
-import math
+import matplotlib.pyplot as plt
 
 pytrends = TrendReq(hl='pt-BR', tz=360)
 
@@ -127,8 +122,9 @@ def strategy1(combined, sinais):
     
     return ganhograf, combined2
 
-def graph(ganhograf, ganhografteste, combined2):
-        
+
+def graphmat(ganhograf, ganhografteste, combined2):
+    
     ganhograf.append(ganhograf[len(ganhograf)-1])
     ganhograf = pd.DataFrame(ganhograf)
     ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
@@ -143,63 +139,28 @@ def graph(ganhograf, ganhografteste, combined2):
     
     ganhos_combined = ganhograf.merge(ganhografteste, on = 'date', how = 'right').dropna()
     
-    # Create figure with secondary y-axis
-    fig = make_subplots(specs=[[{"secondary_y": False}]])
-
-    # Add traces
-    fig.add_trace(
-        go.Scatter(x=ganhos_combined.index, y=ganhos_combined['Retorno da Estratégia 1'], name="Retorno da Estratégia 1",
-                   mode = 'lines', line_color='#34B6F0')
-    )
-
-    fig.add_trace(
-        go.Scatter(x=ganhos_combined.index, y=ganhos_combined['Retorno do Buy and Hold'], name="Retorno do Buy and Hold",
-                  mode = 'lines', line_color = "#1a3668")
-    )
-
-    # Add figure title
-    fig.update_layout(
-        title_text=("Retorno do Buy and Hold e da Estratégia")
-    )
-
-    # Set x-axis title
-    fig.update_xaxes(title_text="Data")
-
-    # Set y-axes titles
-    fig.update_yaxes(title_text= 'Retorno', secondary_y=False)
-
-    # Add range slider
-    fig.update_layout(
-        xaxis=dict(
-            rangeselector=dict(
-                buttons=list([
-                    dict(count=1,
-                         label="1m",
-                         step="month",
-                         stepmode="backward"),
-                    dict(count=6,
-                         label="6m",
-                         step="month",
-                         stepmode="backward"),
-                    dict(count=1,
-                         label="YTD",
-                         step="year",
-                         stepmode="todate"),
-                    dict(count=1,
-                         label="1y",
-                         step="year",
-                         stepmode="backward"),
-                    dict(step="all")
-                ])
-            ),
-            rangeslider=dict(
-                visible=True
-            ),
-            type="date"
-            ), 
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)'
-
-    )
-        
-    return fig 
+    # Create some mock data
+    t = ganhos_combined.index
+    data1 = ganhos_combined['Retorno da Estratégia 1']
+    data2 = ganhos_combined['Retorno do Buy and Hold']
+    
+    fig, ax1 = plt.subplots()
+    
+    color = 'tab:red'
+    ax1.set_xlabel('time (s)')
+    ax1.set_ylabel('Retorno da Estratégia 1', color=color)
+    ax1.plot(t, data1, color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
+    
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    
+    color = 'tab:blue'
+    ax2.set_ylabel('Retorno do Buy and Hold', color=color)  # we already handled the x-label with ax1
+    ax2.plot(t, data2, color=color)
+    ax2.tick_params(axis='y', labelcolor=color)
+    
+    ax2.set(title='Retornos acumulados')
+    
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    
+    return fig

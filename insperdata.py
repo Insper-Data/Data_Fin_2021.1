@@ -1,10 +1,6 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
 import yfinance as yf
 from pandas import DataFrame
-from plotly.subplots import make_subplots
-from pytrends import dailydata
 from pytrends.request import TrendReq
 from datetime import date, datetime
 import math
