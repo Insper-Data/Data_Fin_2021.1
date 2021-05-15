@@ -164,3 +164,8 @@ def sharpe_aa(dados):
     sharpe_anualizado = (252**(1/2))*sharpe
     
     return sharpe_anualizado
+
+q = 1 + 4
+print(q)
+
+
