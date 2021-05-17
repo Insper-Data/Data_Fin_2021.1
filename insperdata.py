@@ -89,11 +89,12 @@ def get_google(palavra, startdate, overlap):
 ### Função Dados Financeiros
 
 df_fin = pd.read_excel("dados fin.xlsx")
-assets = pd.DataFrame(df_fin.iloc[0,:].dropna())
+df_assets = pd.DataFrame(df_fin.iloc[0,:].dropna())
 
+#%%
 def get_stocks(ativo):
         
-    search = assets[assets.index.str.contains(ativo.upper())]
+    search = df_assets[df_assets.index.str.contains(ativo.upper())]
     search.reset_index()
     display(search)
 
@@ -107,6 +108,31 @@ def get_stocks(ativo):
     time = pd.DataFrame(df_fin1[ticker].dropna()) #Pega as datas do ticker
 
     price = pd.DataFrame(df_fin1.iloc[:,index_column + 1].dropna()) # Pega os preços dos tickers
+
+    time_price = pd.concat([time, price], axis = 1) #Junta as datas com os preços
+
+    colunas = list(time_price.columns) #Nome da coluna 
+
+    time_price = time_price.rename(columns={ colunas[0]: 'date', colunas[1]: 'Price'}) #Muda o nome da coluna
+    time_price['date'] = pd.to_datetime(time_price['date']) #Arrumando a data
+    time_price = time_price.set_index('date')
+
+    return time_price
+
+def alt_get_stocks(ativo):
+     
+    search = df_assets[df_assets.index.str.contains(ativo)]
+    search.reset_index()
+    indice = 0
+    ticker = search.index[indice]
+        
+    df_fin1 = df_fin.drop(0) #Tira a segunda linha do df
+
+    index_column = df_fin1.columns.get_loc(ticker) #Pega a localização do ticker escolhido
+
+    time = pd.DataFrame(df_fin1[ticker].dropna()) #Pega as datas do ticker
+
+    price = pd.DataFrame(df_fin1.iloc[:,index_column + 1].dropna()) #Pega os preços dos tickers
 
     time_price = pd.concat([time, price], axis = 1) #Junta as datas com os preços
 
@@ -165,7 +191,5 @@ def sharpe_aa(dados):
     
     return sharpe_anualizado
 
-q = 1 + 4
-print(q)
 
 

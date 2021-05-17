@@ -164,3 +164,4 @@ def graphmat(ganhograf, ganhografteste, combined2):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     
     return fig
+
