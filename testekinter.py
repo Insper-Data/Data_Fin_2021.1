@@ -126,3 +126,5 @@ bt = Button(janela, text= "Sair", command= botao_close)
 bt.pack(side = RIGHT)
 
 janela.mainloop()
+
+print("Hello World")
