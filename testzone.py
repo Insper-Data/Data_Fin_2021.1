@@ -1,7 +1,7 @@
 import insperdata as insp
 import strategy as strat 
 
-def retorno_acumulado(inicio, palavra, ativo):
+def retorno_acumulado(inicio, palavra, ativo, sinal):
     startdate = inicio
     overlap = 45
     
@@ -10,9 +10,9 @@ def retorno_acumulado(inicio, palavra, ativo):
     combined = insp.join(trends = trends, stocks = stocks)  
     
     buyhold = strat.buy_hold(combined)  
-    sinal_est1 = strat.sinal1(dados = trends, inverso = False)
+    sinal_est = strat.sinal(dados = combined, inverso = False)
     
-    ganhoestrat, combined2 = strat.strategy1(combined = combined, sinais = sinal_est1)
+    ganhoestrat, combined2 = strat.strategy1(combined = combined, sinais = sinal_est)
     plim = strat.graphmat(ganhoestrat, buyhold, combined2)
     
     return plim
