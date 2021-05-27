@@ -8,7 +8,7 @@ from tabulate import tabulate #fazer tabela
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import insperdata as insp
 import strategy as strat 
-import testzone as tz
+import agg as agg
 
 #%%
 assets = list(range(81))
@@ -81,7 +81,7 @@ def botao_close_2():
     palavra_google = str(ed1.get())
     ticker_stock = str(my_entry.get())
     inicio = str(ed3.get())
-    figure1 = tz.retorno_acumulado(inicio, palavra_google, ticker_stock)
+    figure1 = agg.retorno_acumulado(inicio, palavra_google, ticker_stock)
     bar1 = FigureCanvasTkAgg(figure1, janela)
     bar1.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH)
     
