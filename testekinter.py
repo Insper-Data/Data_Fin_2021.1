@@ -78,10 +78,10 @@ def botao_close_2():
     global palavra_google
     global ticker_stock
     global inicio
-    palavra_google = str(ed1.get())
+     palavra_google = str(ed1.get())
     ticker_stock = str(my_entry.get())
     inicio = str(ed3.get())
-    figure1 = agg.retorno_acumulado(inicio, palavra_google, ticker_stock)
+    figure1 = agg.retorno_acumulado(inicio, palavra_google, ticker_stock) #Chamado do gráfico da estratégia
     bar1 = FigureCanvasTkAgg(figure1, janela)
     bar1.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH)
     

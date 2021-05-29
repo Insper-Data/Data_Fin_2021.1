@@ -346,3 +346,59 @@ def graphmat(ganhograf, ganhografteste, combined2):
     
     return fig
 
+#Estratégia do acelerador
+
+def sinal1(combined, inverso):
+    #Combined é um dataframe com preços da ação e tendência do Google
+    #Inverso é a opção de inverter (true or false) os sinais gerados
+    
+    #Começando pela leitura da base    
+    dados = combined.iloc[:,0]
+    
+    tamanho = len(dados)
+    
+    somatorio = list(range(tamanho))
+    resultado = list(range(tamanho))
+    media_ = list(range(tamanho))
+        
+    somatorio[0] = dados.iloc[0,0]
+    media_[0] = 0
+    resultado[0] = 0
+    
+    for i in range(1,tamanho): # Soma os anteriores 
+        somatorio[i] = dados.iloc[i,0] + somatorio[i-1]
+        
+    somatorio = pd.DataFrame(somatorio)
+    
+    for i in range(tamanho): # Faz a "média" dos anteriores (o i é de hoje)
+        media_[i] = somatorio.iloc[i,0]/(i+1)
+    
+    media_ = pd.DataFrame(media_)
+    
+    for i in range(1,tamanho): # Hoje - média anteriores 
+        resultado[i] = dados.iloc[i,0] - media_.iloc[i-1,0]
+        
+    resultado = pd.DataFrame(resultado)
+    
+    ind = list(range(tamanho))
+    
+    if inverso == False:
+        for i in range(1,tamanho):
+            if resultado.iloc[i,0]>0:
+                ind[i] = "sell p(t+1); buy p(t+2) - SHORT"
+            else:
+                ind[i] = "buy p(t+1); sell p(t+2) - LONG"          
+    else:
+        for i in range(1,tamanho):
+            if resultado.iloc[i,0]<0:
+                ind[i] = "sell p(t+1); buy p(t+2) - SHORT"
+            else:
+                ind[i] = "buy p(t+1); sell p(t+2) - LONG" 
+            
+    ind = pd.DataFrame(ind)
+    
+    ind = ind.rename(columns={ 0: 'Estratégia'}) 
+    
+    ind = ind.set_index(dados.index, inplace = False)
+        
+    return ind
