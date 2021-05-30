@@ -1,4 +1,4 @@
-import insperdata as insp
+import basic_func as insp
 import strategy as strat 
 
 def retorno_acumulado(inicio, palavra, ativo, sinal):
@@ -10,7 +10,7 @@ def retorno_acumulado(inicio, palavra, ativo, sinal):
     combined = insp.join(trends = trends, stocks = stocks)  
     
     buyhold = strat.buy_hold(combined)  
-    sinal_est = strat.sinal(dados = combined, inverso = False)
+    sinal_est = strat.sinal(combined = combined, inverso = False)
     
     ganhoestrat, combined2 = strat.strategy1(combined = combined, sinais = sinal_est)
     plim = strat.graphmat(ganhoestrat, buyhold, combined2)

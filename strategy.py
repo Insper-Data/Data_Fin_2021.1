@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from pytrends.request import TrendReq
 import matplotlib.pyplot as plt
+import numpy as np
 
 pytrends = TrendReq(hl='pt-BR', tz=360)
     
@@ -25,7 +26,7 @@ def buy_hold(combined):
     # Ganho acumulado do buy and hold
     gain_bh = 1
 
-    for i in range(len(buy_hold)):
+    for i in range(1, len(buy_hold)):
         gain_bh = gain_bh*(1+buy_hold.iloc[i,0])
     print(gain_bh)
 
@@ -42,43 +43,43 @@ def buy_hold(combined):
 
 def sinal1(combined, inverso):
     
-    dados = combined.iloc[:,0]
+    dados_trends = pd.DataFrame(combined.iloc[:,0])
     
-    tamanho = len(dados)
+    tamanho_trends = len(dados_trends)
     
-    somatorio = list(range(tamanho))
-    resultado = list(range(tamanho))
-    media_ = list(range(tamanho))
+    somatorio = list(range(tamanho_trends))
+    resultado = list(range(tamanho_trends))
+    media_ = list(range(tamanho_trends))
         
-    somatorio[0] = dados.iloc[0,0]
+    somatorio[0] = dados_trends.iloc[0,0]
     media_[0] = 0
     resultado[0] = 0
     
-    for i in range(1,tamanho): # Soma os anteriores 
-        somatorio[i] = dados.iloc[i,0] + somatorio[i-1]
+    for i in range(1,tamanho_trends): # Soma os anteriores 
+        somatorio[i] = dados_trends.iloc[i,0] + somatorio[i-1]
         
     somatorio = pd.DataFrame(somatorio)
     
-    for i in range(tamanho): # Faz a "média" dos anteriores (o i é de hoje)
+    for i in range(tamanho_trends): # Faz a "média" dos anteriores (o i é de hoje)
         media_[i] = somatorio.iloc[i,0]/(i+1)
     
     media_ = pd.DataFrame(media_)
     
-    for i in range(1,tamanho): # Hoje - média anteriores 
-        resultado[i] = dados.iloc[i,0] - media_.iloc[i-1,0]
+    for i in range(1,tamanho_trends): # Hoje - média anteriores 
+        resultado[i] = dados_trends.iloc[i,0] - media_.iloc[i-1,0]
         
     resultado = pd.DataFrame(resultado)
     
-    ind = list(range(tamanho))
+    ind = list(range(tamanho_trends))
     
     if inverso == False:
-        for i in range(1,tamanho):
+        for i in range(1,tamanho_trends):
             if resultado.iloc[i,0]>0:
                 ind[i] = "sell p(t+1); buy p(t+2) - SHORT"
             else:
                 ind[i] = "buy p(t+1); sell p(t+2) - LONG"          
     else:
-        for i in range(1,tamanho):
+        for i in range(1,tamanho_trends):
             if resultado.iloc[i,0]<0:
                 ind[i] = "sell p(t+1); buy p(t+2) - SHORT"
             else:
@@ -88,7 +89,7 @@ def sinal1(combined, inverso):
     
     ind = ind.rename(columns={ 0: 'Estratégia'}) 
     
-    ind = ind.set_index(dados.index, inplace = False)
+    ind = ind.set_index(dados_trends.index, inplace = False)
         
     return ind
 
@@ -96,70 +97,70 @@ def sinal1(combined, inverso):
 
 def sinal2(combined, inverso):
     
-    tamanho = len(combined)
+    tamanho_trends = len(combined)
     
-    dados = combined.iloc[:,0]
-    dados = pd.DataFrame(dados)
+    dados_trends = combined.iloc[:,0]
+    dados_trends = pd.DataFrame(dados_trends)
     
     stocks = combined.iloc[:,1]
     stocks = pd.DataFrame(stocks)
     
     # Para Trends
     
-    somatorio = list(range(tamanho))
-    resultado = list(range(tamanho))
-    media_ = list(range(tamanho))
+    somatorio = list(range(tamanho_trends))
+    resultado = list(range(tamanho_trends))
+    media_ = list(range(tamanho_trends))
         
-    somatorio[0] = dados.iloc[0,0]
+    somatorio[0] = dados_trends.iloc[0,0]
     media_[0] = 0
     resultado[0] = 0
     
-    for i in range(1,tamanho): # Soma os anteriores 
-        somatorio[i] = dados.iloc[i,0] + somatorio[i-1]
+    for i in range(1,tamanho_trends): # Soma os anteriores 
+        somatorio[i] = dados_trends.iloc[i,0] + somatorio[i-1]
         
     somatorio = pd.DataFrame(somatorio)
     
-    for i in range(tamanho): # Faz a "média" dos anteriores (o i é de hoje)
+    for i in range(tamanho_trends): # Faz a "média" dos anteriores (o i é de hoje)
         media_[i] = somatorio.iloc[i,0]/(i+1)
     
     media_ = pd.DataFrame(media_)
     
-    for i in range(1,tamanho): # Hoje - média anteriores 
-        resultado[i] = dados.iloc[i,0] - media_.iloc[i-1,0]
+    for i in range(1,tamanho_trends): # Hoje - média anteriores 
+        resultado[i] = dados_trends.iloc[i,0] - media_.iloc[i-1,0]
         
     resultado = pd.DataFrame(resultado)
     
     # Para stocks
     
-    somatorio2 = list(range(tamanho))
-    resultado2 = list(range(tamanho))
-    media_2 = list(range(tamanho))
+    somatorio2 = list(range(tamanho_trends))
+    resultado2 = list(range(tamanho_trends))
+    media_2 = list(range(tamanho_trends))
         
     somatorio2[0] = stocks.iloc[0,0]
     media_2[0] = 0
     resultado2[0] = 0
     
-    for i in range(1,tamanho): # Soma os anteriores 
+    for i in range(1,tamanho_trends): # Soma os anteriores 
         somatorio2[i] = stocks.iloc[i,0] + somatorio2[i-1]
         
     somatorio2 = pd.DataFrame(somatorio2)
     
-    for i in range(tamanho): # Faz a "média" dos anteriores (o i é de hoje)
+    for i in range(tamanho_trends): # Faz a "média" dos anteriores (o i é de hoje)
         media_2[i] = somatorio2.iloc[i,0]/(i+1)
     
     media_2 = pd.DataFrame(media_2)
     
-    for i in range(1,tamanho): # Hoje - média anteriores 
+    for i in range(1,tamanho_trends): # Hoje - média anteriores 
         resultado2[i] = stocks.iloc[i,0] - media_2.iloc[i-1,0]
         
     resultado2 = pd.DataFrame(resultado2)
     
     # Indicador
     
-    ind = list(range(tamanho))
+    ind = list(range(tamanho_trends))
     
     if inverso == False:
-        for i in range(1,tamanho):
+        for i in range(1,tamanho_trends):
             if resultado2.iloc[i,0]>0:
                 ind[i] = "buy p(t+1); sell p(t+2) - LONG"
             else:
@@ -168,7 +169,7 @@ def sinal2(combined, inverso):
                 else:
                     ind[i] = "buy p(t+1); sell p(t+2) - LONG"
     else:
-        for i in range(1,tamanho):
+        for i in range(1,tamanho_trends):
             if resultado2.iloc[i,0]>0:
                 ind[i] = "buy p(t+1); sell p(t+2) - LONG"
             else:
@@ -181,7 +182,7 @@ def sinal2(combined, inverso):
     
     ind = ind.rename(columns={ 0: 'Estratégia'}) 
     
-    ind = ind.set_index(dados.index, inplace = False)
+    ind = ind.set_index(dados_trends.index, inplace = False)
         
     return ind
 
@@ -189,36 +190,36 @@ def sinal2(combined, inverso):
 
 def sinal3(combined, inverso, dias):
     
-    tamanho = len(combined)
+    tamanho_trends = len(combined)
     
-    dados = combined.iloc[:,0]
-    dados = pd.DataFrame(dados)
+    dados_trends = combined.iloc[:,0]
+    dados_trends = pd.DataFrame(dados_trends)
     
     stocks = combined.iloc[:,1]
     stocks = pd.DataFrame(stocks)
     
     # Para Trends
     
-    somatorio = list(range(tamanho))
-    resultado = list(range(tamanho))
-    media_ = list(range(tamanho))
+    somatorio = list(range(tamanho_trends))
+    resultado = list(range(tamanho_trends))
+    media_ = list(range(tamanho_trends))
         
-    somatorio[0] = dados.iloc[0,0]
+    somatorio[0] = dados_trends.iloc[0,0]
     media_[0] = 0
     resultado[0] = 0
     
-    for i in range(1,tamanho): # Soma os anteriores 
-        somatorio[i] = dados.iloc[i,0] + somatorio[i-1]
+    for i in range(1,tamanho_trends): # Soma os anteriores 
+        somatorio[i] = dados_trends.iloc[i,0] + somatorio[i-1]
         
     somatorio = pd.DataFrame(somatorio)
     
-    for i in range(tamanho): # Faz a "média" dos anteriores (o i é de hoje)
+    for i in range(tamanho_trends): # Faz a "média" dos anteriores (o i é de hoje)
         media_[i] = somatorio.iloc[i,0]/(i+1)
     
     media_ = pd.DataFrame(media_)
     
-    for i in range(1,tamanho): # Hoje - média anteriores 
-        resultado[i] = dados.iloc[i,0] - media_.iloc[i-1,0]
+    for i in range(1,tamanho_trends): # Hoje - média anteriores 
+        resultado[i] = dados_trends.iloc[i,0] - media_.iloc[i-1,0]
         
     resultado = pd.DataFrame(resultado)
     
@@ -228,7 +229,7 @@ def sinal3(combined, inverso, dias):
     i=0
     mm = []
     
-    while i < tamanho - tam_mm + 1:
+    while i < tamanho_trends - tam_mm + 1:
         grupo = stocks.iloc[i : i + tam_mm,0]
         media_grupo = sum(grupo) / tam_mm
         mm.append(media_grupo)
@@ -241,10 +242,10 @@ def sinal3(combined, inverso, dias):
     
     # Indicador
     
-    ind = list(range(tamanho))
+    ind = list(range(tamanho_trends))
     
     if inverso == False:
-        for i in range(dias,tamanho):
+        for i in range(dias,tamanho_trends):
             if mm.iloc[i,0] - mm.iloc[i-1,0]>0:
                 ind[i] = "buy p(t+1); sell p(t+2) - LONG"
             else:
@@ -253,7 +254,7 @@ def sinal3(combined, inverso, dias):
                 else:
                     ind[i] = "buy p(t+1); sell p(t+2) - LONG"
     else:
-        for i in range(dias,tamanho):
+        for i in range(dias,tamanho_trends):
             if mm.iloc[i,0] - mm.iloc[i-1,0]>0:
                 ind[i] = "buy p(t+1); sell p(t+2) - LONG"
             else:
@@ -266,29 +267,30 @@ def sinal3(combined, inverso, dias):
     
     ind = ind.rename(columns={ 0: 'Estratégia'}) 
     
-    ind = ind.set_index(dados.index, inplace = False)
+    ind = ind.set_index(dados_trends.index, inplace = False)
         
     return ind
 
-def strategy1(combined, sinais):
+def gen_return(combined, sinais):
     
-    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna()
+    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
     
-    retorno_est1 = list(range(len(combined2)-1)) 
+    datas = list(combined2.index) #Salvando o index
+    datas = datas[1:]
+    
+    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
 
     for i in range(len(combined2)-2):
         if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
             retorno_est1[i+1] = (combined2.iloc[i+2,1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
+        elif combined2.iloc[i,2] == "DO NOTHING":
+            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
         else:
             retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+2,1])/combined2.iloc[i+2,1]
         
-    retorno_est1.append(0) #Adicionei mais uma linha pra fazer com que os index batessem. Tem que vir antes de pd
-    retorno_est1 = pd.DataFrame(retorno_est1) 
-    retorno_est1 = retorno_est1.rename(columns={ 0: 'Retorno da Estratégia'}) 
-    retorno_est1 = retorno_est1.set_index(combined2.index, inplace = False)
-    retorno_est1.drop(retorno_est1.tail(1).index, inplace = True) # Dropei a linha adicionada   
-
-    # Ganho acumulado da estratégia 1
+    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
+    
+    # Ganho acumulado da estratégia 
     gain = 1 
 
     for i in range(1,len(retorno_est1)):
@@ -301,22 +303,58 @@ def strategy1(combined, sinais):
 
     for i in range(len(retorno_est1)-1):
         ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
+        
+    ganhograf = pd.DataFrame(ganhograf, index = datas) #Transforma a série de retornos acumulados em DF
+    
+    combined3 = combined2.merge(ganhograf, left_index = True, right_index = True) #Junta trends, preços, sinais e retornos
+    combined3 = combined3.rename(columns = { 3: "Retornos acumulados"})
+    
+    return combined3
+
+def gen_return_sep(combined, sinais):
+    
+    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
+        
+    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
+
+    for i in range(len(combined2)-2):
+        if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
+            retorno_est1[i+1] = (combined2.iloc[i+2,1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
+        elif combined2.iloc[i,2] == "DO NOTHING":
+            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
+        else:
+            retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+2,1])/combined2.iloc[i+2,1]
+        
+    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
+    
+    # Ganho acumulado da estratégia 
+    gain = 1 
+
+    for i in range(1,len(retorno_est1)):
+        gain = gain*(1+retorno_est1.iloc[i,0])
+    print(gain)
+
+    # Visualização gráfica
+    ganhograf = list(range(len(retorno_est1)))
+    ganhograf[0] = 1
+
+    for i in range(len(retorno_est1)-1):
+        ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
+      
+    combined2 = combined2.iloc[1:]
     
     return ganhograf, combined2
 
-def graphmat(ganhograf, ganhografteste, combined2):
+
+def graph_matplot(ganhograf, ganhografteste, combined2):
     
-    ganhograf.append(ganhograf[len(ganhograf)-1])
     ganhograf = pd.DataFrame(ganhograf)
     ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
     ganhograf = ganhograf.set_index(combined2.index, inplace = False)
-    ganhograf = ganhograf.drop(ganhograf.tail(1).index, inplace = False) # Dropei a linha adicionada      
-
-    ganhografteste.append(ganhografteste[len(ganhografteste)-1])
+        
     ganhografteste = pd.DataFrame(ganhografteste)
     ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
     ganhografteste = ganhografteste.set_index(combined2.index, inplace = False)
-    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
     
     ganhos_combined = ganhograf.merge(ganhografteste, on = 'date', how = 'right').dropna()
     
@@ -344,61 +382,137 @@ def graphmat(ganhograf, ganhografteste, combined2):
     
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     
+    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
+    
+    return fig
+
+def graph_one(combined3, ganhografteste):
+    
+    ganhograf = combined3.iloc[:, 3]
+    ganhograf = pd.DataFrame(ganhograf)
+    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
+    ganhograf = ganhograf.set_index(combined3.index, inplace = False)
+        
+    ganhografteste = pd.DataFrame(ganhografteste)
+    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
+    ganhografteste = ganhografteste.set_index(combined3.index, inplace = False)
+    
+    ganhos_combined = ganhograf.merge(ganhografteste, left_index = True, right_index = True).dropna()
+    
+    # Create some mock data
+    t = ganhos_combined.index
+    data1 = ganhos_combined['Retorno da Estratégia 1']
+    data2 = ganhos_combined['Retorno do Buy and Hold']
+    
+    fig, ax1 = plt.subplots()
+    
+    color = 'tab:red'
+    ax1.set_xlabel('time (s)')
+    ax1.set_ylabel('Retorno da Estratégia 1', color=color)
+    ax1.plot(t, data1, color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
+    
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    
+    color = 'tab:blue'
+    ax2.set_ylabel('Retorno do Buy and Hold', color=color)  # we already handled the x-label with ax1
+    ax2.plot(t, data2, color=color)
+    ax2.tick_params(axis='y', labelcolor=color)
+    
+    ax2.set(title='Retornos acumulados')
+    
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    
+    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
+    
     return fig
 
 #Estratégia do acelerador
 
-def sinal1(combined, inverso):
+def sinal_acelerador(combined):
     #Combined é um dataframe com preços da ação e tendência do Google
     #Inverso é a opção de inverter (true or false) os sinais gerados
     
     #Começando pela leitura da base    
-    dados = combined.iloc[:,0]
+    tamanho_trends = len(combined)
     
-    tamanho = len(dados)
+    dados_trends = combined.iloc[:,0]
+    dados_trends = pd.DataFrame(dados_trends)
     
-    somatorio = list(range(tamanho))
-    resultado = list(range(tamanho))
-    media_ = list(range(tamanho))
+    stocks = combined.iloc[:,1]
+    stocks = pd.DataFrame(stocks)
+    
+    #Sinal do Trends
+    
+    somatorio = list(range(tamanho_trends))
+    resultado = list(range(tamanho_trends))
+    media_ = list(range(tamanho_trends))
         
-    somatorio[0] = dados.iloc[0,0]
+    somatorio[0] = dados_trends.iloc[0,0]
     media_[0] = 0
     resultado[0] = 0
     
-    for i in range(1,tamanho): # Soma os anteriores 
-        somatorio[i] = dados.iloc[i,0] + somatorio[i-1]
+    for i in range(1,tamanho_trends): # Soma os anteriores 
+        somatorio[i] = dados_trends.iloc[i,0] + somatorio[i-1]
         
     somatorio = pd.DataFrame(somatorio)
     
-    for i in range(tamanho): # Faz a "média" dos anteriores (o i é de hoje)
+    for i in range(tamanho_trends): # Faz a "média" dos anteriores (o i é de hoje)
         media_[i] = somatorio.iloc[i,0]/(i+1)
     
     media_ = pd.DataFrame(media_)
     
-    for i in range(1,tamanho): # Hoje - média anteriores 
-        resultado[i] = dados.iloc[i,0] - media_.iloc[i-1,0]
+    for i in range(1,tamanho_trends): # Hoje - média anteriores 
+        resultado[i] = dados_trends.iloc[i,0] - media_.iloc[i-1,0]
         
-    resultado = pd.DataFrame(resultado)
+    resultado = pd.DataFrame(resultado) #Sinal do Trends em resultado
     
-    ind = list(range(tamanho))
+    # Para stocks
     
-    if inverso == False:
-        for i in range(1,tamanho):
+    somatorio2 = list(range(tamanho_trends))
+    resultado2 = list(range(tamanho_trends))
+    media_2 = list(range(tamanho_trends))
+        
+    somatorio2[0] = stocks.iloc[0,0]
+    media_2[0] = 0
+    resultado2[0] = 0
+    
+    for i in range(1,tamanho_trends): # Soma os anteriores 
+        somatorio2[i] = stocks.iloc[i,0] + somatorio2[i-1]
+        
+    somatorio2 = pd.DataFrame(somatorio2)
+    
+    for i in range(tamanho_trends): # Faz a "média" dos anteriores (o i é de hoje)
+        media_2[i] = somatorio2.iloc[i,0]/(i+1)
+    
+    media_2 = pd.DataFrame(media_2)
+    
+    for i in range(1,tamanho_trends): # Hoje - média anteriores 
+        resultado2[i] = stocks.iloc[i,0] - media_2.iloc[i-1,0]
+        
+    resultado2 = pd.DataFrame(resultado2) #Sinal dos preços em resultado2
+    
+    # Indicador
+    
+    ind = list(range(tamanho_trends))
+                                           
+    for i in range(1,tamanho_trends):                         #For para iterar as decisões diárias
+        if resultado2.iloc[i,0]>0:                            #Se o preço da ação subiu...
+            if resultado.iloc[i,0]>0:                         #Verificação de tendência com Trends
+                ind[i] = "buy p(t+1); sell p(t+2) - LONG"
+            else:
+                ind[i] = "DO NOTHING"
+        else:                                                 #Se o preço da ação caiu...
             if resultado.iloc[i,0]>0:
-                ind[i] = "sell p(t+1); buy p(t+2) - SHORT"
+                ind[i] = "DO NOTHING"
             else:
-                ind[i] = "buy p(t+1); sell p(t+2) - LONG"          
-    else:
-        for i in range(1,tamanho):
-            if resultado.iloc[i,0]<0:
                 ind[i] = "sell p(t+1); buy p(t+2) - SHORT"
-            else:
-                ind[i] = "buy p(t+1); sell p(t+2) - LONG" 
+    
             
     ind = pd.DataFrame(ind)
     
     ind = ind.rename(columns={ 0: 'Estratégia'}) 
     
-    ind = ind.set_index(dados.index, inplace = False)
+    ind = ind.set_index(dados_trends.index, inplace = False)
         
     return ind
