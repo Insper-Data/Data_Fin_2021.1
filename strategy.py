@@ -271,6 +271,87 @@ def sinal3(combined, inverso, dias):
         
     return ind
 
+# Estratégia com insipiração o projeto de finanças de 2020.2
+
+def sinal4(combined, inverso, dias):
+    
+    tamanho = len(combined)
+    
+    trends = combined.iloc[:,0]
+    trends = pd.DataFrame(trends)
+    
+    stocks = combined.iloc[:,1]
+    stocks = pd.DataFrame(stocks)
+    
+    # Para stocks
+    
+    tam_mm = dias
+    i=0
+    mm = []
+    
+    while i < tamanho - tam_mm + 1:
+        grupo = stocks.iloc[i : i + tam_mm,0]
+        media_grupo = sum(grupo) / tam_mm
+        mm.append(media_grupo)
+        i +=1
+        
+    for i in range(dias-1):
+        mm.insert(0,0)
+    
+    mm = pd.DataFrame(mm)
+    
+    # Para trends
+    
+    tam_mm = dias
+    i=0
+    mm_ = []
+    
+    while i < tamanho - tam_mm + 1:
+        grupo_ = trends.iloc[i : i + tam_mm,0]
+        media_grupo_ = sum(grupo_) / tam_mm
+        mm_.append(media_grupo_)
+        i +=1
+        
+    for i in range(dias-1):
+        mm_.insert(0,0)
+    
+    mm_ = pd.DataFrame(mm_)
+    
+    # Indicador
+    
+    ind = list(range(tamanho))
+    
+    if inverso == False:
+        for i in range(dias, tamanho):
+            if mm.iloc[i,0] - mm.iloc[i-1,0]>0:
+                ind[i] = "buy p(t+1); sell p(t+2) - LONG"
+            else:
+                if mm_.iloc[i,0] - mm_.iloc[i-1,0]>0:
+                    ind[i] = "sell p(t+1); buy p(t+2) - SHORT"
+                else:
+                    ind[i] = "buy p(t+1); sell p(t+2) - LONG"
+    else:
+        for i in range(dias, tamanho):
+            if mm.iloc[i,0] - mm.iloc[i-1,0]>0:
+                ind[i] = "buy p(t+1); sell p(t+2) - LONG"
+            else:
+                if mm_.iloc[i,0] - mm_.iloc[i-1,0]<0:
+                    ind[i] = "sell p(t+1); buy p(t+2) - SHORT"
+                else:
+                    ind[i] = "buy p(t+1); sell p(t+2) - LONG"
+    
+    # Se a média móvel dos preços está subindo, LONG
+    # Se ela estiver caindo e a média móvel das pesquisas estiver subindo, SHORT
+    # Em qualquer outro cenário, LONG
+                   
+    ind = pd.DataFrame(ind)
+    
+    ind = ind.rename(columns={ 0: 'Estratégia'}) 
+    
+    ind = ind.set_index(trends.index, inplace = False)
+        
+    return ind
+
 def gen_return(combined, sinais):
     
     combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
@@ -379,7 +460,7 @@ def graph_matplot(ganhograf, ganhografteste, combined2):
     ax2.tick_params(axis='y', labelcolor=color)
     
     ax2.set(title='Retornos acumulados')
-    
+        
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     
     ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  

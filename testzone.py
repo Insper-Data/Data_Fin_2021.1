@@ -1,14 +1,14 @@
-import basic_func as insp
+import basic_func as bf
 import strategy as strat 
 
 #Puxando dados
 inicio = '2017-01-01'
 
-trends = insp.get_google(palavra = "vvar3", startdate = inicio, overlap = 45)
+trends = bf.get_google(palavra = "ibovespa", startdate = inicio, overlap = 45)
 
-stocks = insp.get_stocks(ativo = "vvar3")
+stocks = bf.get_stocks(ativo = "bvsp")
 
-combined = insp.join(trends = trends, stocks = stocks)
+combined = bf.join(trends = trends, stocks = stocks)
 
 #Gerando os sinais
 sinal_est1 = strat.sinal1(combined = combined, inverso = False)
@@ -23,8 +23,6 @@ buyhold = strat.buy_hold(combined)
 plim = strat.graph_matplot(ganhoestrat, buyhold, combined2)
 
 plim.show()
-
-
 
 #Testando o sinal híbrido
 
@@ -46,6 +44,15 @@ plim_acelerador = strat.graph_matplot(ganho_teste, buyhold, combined2_teste)
 
 plim_acelerador.show()
 
+#Testando o sinal das médias móveis para preços e pesquisas (projeto 2020.2)
+
+sinal_teste = strat.sinal4(combined = combined, inverso = False, dias = 21)
+
+ganho_teste, combined2_teste = strat.gen_return_sep(combined = combined, sinais = sinal_teste)
+
+plim_acelerador = strat.graph_matplot(ganho_teste, buyhold, combined2_teste)
+
+plim_acelerador.show()
 
 #Testando o sinal do acelerador
 
