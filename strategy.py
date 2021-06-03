@@ -597,3 +597,84 @@ def sinal_acelerador(combined):
     ind = ind.set_index(dados_trends.index, inplace = False)
         
     return ind
+
+# Função utilizando o volume de negociações como validador
+## Se o volume de negociações sobe mais do que o desvpad, faz a estratégia do paper
+## Use a função GET_YAHOO para imputar o "combined"
+    
+def sinal_volume1(combined, inverso):
+    
+    # Para o trends
+    
+    dados_trends = pd.DataFrame(combined.iloc[:,0])
+    
+    tamanho_trends = len(dados_trends)
+    
+    somatorio = list(range(tamanho_trends))
+    resultado = list(range(tamanho_trends))
+    media_ = list(range(tamanho_trends))
+        
+    somatorio[0] = dados_trends.iloc[0,0]
+    media_[0] = 0
+    resultado[0] = 0
+    
+    for i in range(1,tamanho_trends): # Soma os anteriores 
+        somatorio[i] = dados_trends.iloc[i,0] + somatorio[i-1]
+        
+    somatorio = pd.DataFrame(somatorio)
+    
+    for i in range(tamanho_trends): # Faz a "média" dos anteriores (o i é de hoje)
+        media_[i] = somatorio.iloc[i,0]/(i+1)
+    
+    media_ = pd.DataFrame(media_)
+    
+    for i in range(1,tamanho_trends): # Hoje - média anteriores 
+        resultado[i] = dados_trends.iloc[i,0] - media_.iloc[i-1,0]
+        
+    resultado = pd.DataFrame(resultado)
+    
+    ind = list(range(tamanho_trends))
+    
+    # Volume de negociações
+    
+    volume = pd.DataFrame(combined.iloc[:,2])
+    
+    for i in range(len(volume)):
+        if volume.iloc[i,0] == 0:
+            volume.iloc[i,0] = volume.iloc[i-1,0]
+    
+    ret_vol = list(range(len(combined)))
+    
+    for i in range(1, len(combined)):
+        ret_vol[i] = (volume.iloc[i,0]-volume.iloc[i-1,0])/volume.iloc[i-1,0]
+        
+    ret_vol = pd.DataFrame(ret_vol)
+    
+    desvpad = ret_vol.iloc[:,0].std()
+    
+    # Indicador
+        
+    for i in range(1,len(ret_vol)):
+        if ret_vol.iloc[i,0]>desvpad:
+            if inverso == False:
+                if resultado.iloc[i,0]>0:
+                    ind[i] = "sell p(t+1); buy p(t+2) - SHORT"
+                else:
+                    ind[i] = "buy p(t+1); sell p(t+2) - LONG"          
+            else:
+                if resultado.iloc[i,0]<0:
+                    ind[i] = "sell p(t+1); buy p(t+2) - SHORT"
+                else:
+                    ind[i] = "buy p(t+1); sell p(t+2) - LONG" 
+        else:
+            ind[i] = "DO NOTHING"
+            
+    ind = pd.DataFrame(ind)
+    
+    ind = ind.rename(columns={ 0: 'Estratégia'}) 
+    
+    ind = ind.set_index(dados_trends.index, inplace = False)
+    
+    return ind
+        
+    

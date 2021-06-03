@@ -290,5 +290,4 @@ def av_corr_med(insert):
         print(correla)
         print(correla.mean())
         
-av_corr_med(1)
                     
