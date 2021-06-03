@@ -508,6 +508,51 @@ def graph_one(combined3, ganhografteste):
     
     return fig
 
+# Essa função é exatamente igual a anterior
+## A diferença é que o combined3 agora tem uma coluna a mais (volume)
+## Mudei isso no primeira linha do código da função
+
+def graph_one_vol(combined3, ganhografteste):
+    
+    ganhograf = combined3.iloc[:, 4]
+    ganhograf = pd.DataFrame(ganhograf)
+    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
+    ganhograf = ganhograf.set_index(combined3.index, inplace = False)
+        
+    ganhografteste = pd.DataFrame(ganhografteste)
+    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
+    ganhografteste = ganhografteste.set_index(combined3.index, inplace = False)
+    
+    ganhos_combined = ganhograf.merge(ganhografteste, left_index = True, right_index = True).dropna()
+    
+    # Create some mock data
+    t = ganhos_combined.index
+    data1 = ganhos_combined['Retorno da Estratégia 1']
+    data2 = ganhos_combined['Retorno do Buy and Hold']
+    
+    fig, ax1 = plt.subplots()
+    
+    color = 'tab:red'
+    ax1.set_xlabel('time (s)')
+    ax1.set_ylabel('Retorno da Estratégia 1', color=color)
+    ax1.plot(t, data1, color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
+    
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    
+    color = 'tab:blue'
+    ax2.set_ylabel('Retorno do Buy and Hold', color=color)  # we already handled the x-label with ax1
+    ax2.plot(t, data2, color=color)
+    ax2.tick_params(axis='y', labelcolor=color)
+    
+    ax2.set(title='Retornos acumulados')
+    
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    
+    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
+    
+    return fig
+
 #Estratégia do acelerador
 
 def sinal_acelerador(combined):

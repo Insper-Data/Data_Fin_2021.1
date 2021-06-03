@@ -63,3 +63,21 @@ combined3 = strat.gen_return(combined = combined, sinais = sinal_teste)
 plim_acelerador = strat.graph_one(combined3, buyhold)
 
 plim_acelerador.show() 
+
+# Testando o sinal1 do validado pelo volume
+
+stocks_y = bf.get_yahoo("^BVSP")
+
+combined_y = bf.join(trends = trends, stocks = stocks_y)
+
+buyhold_y = strat.buy_hold(combined_y)
+
+sinal_teste = strat.sinal_volume1(combined = combined_y, inverso = False)
+    # N sei pq mas o inverso ser True ou False n muda o resultado
+
+combined3_y = strat.gen_return(combined = combined_y, sinais = sinal_teste)
+
+plim_acelerador = strat.graph_one_vol(combined3_y, buyhold_y)
+
+plim_acelerador.show() 
+
