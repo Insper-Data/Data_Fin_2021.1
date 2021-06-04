@@ -392,6 +392,48 @@ def gen_return(combined, sinais):
     
     return combined3
 
+
+def gen_return_flexible(combined, sinais, hold_time):
+    
+    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
+    
+    datas = list(combined2.index) #Salvando o index
+    datas = datas[1:]
+    
+    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
+
+    for i in range(len(combined2)-(1 + hold_time)):
+        if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
+            retorno_est1[i+1] = (combined2.iloc[i+(1+hold_time),1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
+        elif combined2.iloc[i,2] == "DO NOTHING":
+            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
+        else:
+            retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+(1+hold_time),1])/combined2.iloc[i+(1+hold_time),1]
+        
+    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
+    
+    # Ganho acumulado da estratégia 
+    gain = 1 
+
+    for i in range(1,len(retorno_est1)):
+        gain = gain*(1+retorno_est1.iloc[i,0])
+    print(gain)
+
+    # Visualização gráfica
+    ganhograf = list(range(len(retorno_est1)))
+    ganhograf[0] = 1
+
+    for i in range(len(retorno_est1)-1):
+        ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
+        
+    ganhograf = pd.DataFrame(ganhograf, index = datas) #Transforma a série de retornos acumulados em DF
+    
+    combined3 = combined2.merge(ganhograf, left_index = True, right_index = True) #Junta trends, preços, sinais e retornos
+    combined3 = combined3.rename(columns = { 3: "Retornos acumulados"})
+    
+    return combined3
+
+
 def gen_return_sep(combined, sinais):
     
     combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
