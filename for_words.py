@@ -28,7 +28,7 @@ sharpe_1F_bbdc4 = list(range(len(words)))
 sharpe_1F_bbdc4 = pd.DataFrame(sharpe_1F_bbdc4)
 sharpe_1F_bbdc4.set_index(words[0], inplace = True)
 
-for i in range(0,len(words)):
+for i in range(20,len(words)):
 
     trends = bf.get_google(palavra = words.iloc[i,0], startdate = inicio, overlap = 45)
     
