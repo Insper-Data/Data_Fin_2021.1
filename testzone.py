@@ -2,11 +2,11 @@ import basic_func as bf
 import strategy as strat 
 
 #Puxando dados
-inicio = '2017-01-01'
+inicio = '2016-01-02'
 
-trends = bf.get_google(palavra = "ibovespa", startdate = inicio, overlap = 45)
+trends = bf.get_google(palavra = "restaurante", startdate = inicio, overlap = 45)
 
-stocks = bf.get_stocks(ativo = "bvsp")
+stocks = bf.get_stocks(ativo = "petr4")
 
 combined = bf.join(trends = trends, stocks = stocks)
 
