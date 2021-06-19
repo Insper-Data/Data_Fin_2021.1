@@ -4,9 +4,9 @@ import strategy as strat
 #Puxando dados
 inicio = '2016-01-02'
 
-trends = bf.get_google(palavra = "credito", startdate = inicio, overlap = 45)
+trends = bf.get_google(palavra = "bbdc4", startdate = inicio, overlap = 45)
 
-stocks = bf.get_stocks(ativo = "vale3")
+stocks = bf.get_stocks(ativo = "bbdc")
 
 combined = bf.join(trends = trends, stocks = stocks)
 

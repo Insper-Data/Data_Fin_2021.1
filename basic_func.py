@@ -1,9 +1,9 @@
 import pandas as pd
 import yfinance as yf
 from pandas import DataFrame
-from pytrends.request import TrendReq
 from datetime import date, datetime
 import math
+from pytrends.request import TrendReq 
 
 pytrends = TrendReq(hl='pt-BR', tz=360)
 
