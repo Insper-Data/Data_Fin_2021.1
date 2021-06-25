@@ -5,9 +5,10 @@ from datetime import date, datetime
 import math
 import strategy as strat
 import basic_func as bf
-import testzone as tz
+#import testzone as tz
 
-pytrends = TrendReq(hl='pt-BR', tz=360)
+#pytrends = TrendReq(hl='pt-BR', tz=360)
+## Se for puxar algo do Trends, descomentar isso
 
 # Fazendo resamples dos períodos e testando o sharpe
 ## Colocar o tamanho em porcentagem (ex: 10% do tamanho total da amostra)

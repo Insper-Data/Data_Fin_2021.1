@@ -549,7 +549,7 @@ def graph_matplot(ganhograf, ganhografteste, combined2):
     
     return fig
 
-def graph_matplot_(ganhograf, ganhografteste, combined2):
+def graph_matplot_(ganhograf, ganhografteste, combined2, cor):
     
     ganhograf = pd.DataFrame(ganhograf)
     ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
@@ -561,13 +561,13 @@ def graph_matplot_(ganhograf, ganhografteste, combined2):
     
     ganhos_combined = ganhograf.merge(ganhografteste, on = 'date', how = 'right').dropna()
     
-    plt.plot(ganhos_combined["Retorno da Estratégia 1"], color = "red")
-    plt.plot(ganhos_combined["Retorno do Buy and Hold"], color = "blue")
+    plt.plot(ganhos_combined["Retorno da Estratégia 1"], color = cor)
+    plt.plot(ganhos_combined["Retorno do Buy and Hold"], color = "black")
+    plt.ylabel("Retorno")
+    plt.legend(loc = 'best')
 
     ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
     
-    return fig
-
 def graph_one(combined3, ganhografteste):
     
     ganhograf = combined3.iloc[:, 3]
