@@ -5,7 +5,9 @@ from datetime import date, datetime
 import math
 from pytrends.request import TrendReq 
 
-pytrends = TrendReq(hl='pt-BR', tz=360)
+#pytrends = TrendReq(hl='pt-BR', tz=360)
+## Se for puxar algum dado, descomentar isso
+
 
 # Função Google Trends Daily Data
 

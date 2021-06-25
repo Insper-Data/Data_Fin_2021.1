@@ -6,7 +6,7 @@ inicio = '2016-01-02'
 
 trends = bf.get_google(palavra = "abev3", startdate = inicio, overlap = 45)
 
-stocks = bf.get_stocks(ativo = "abev3")
+stocks = bf.get_stocks(ativo = "BVSP")
 
 combined = bf.join(trends = trends, stocks = stocks)
 
