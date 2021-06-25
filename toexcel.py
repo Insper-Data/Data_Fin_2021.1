@@ -3,12 +3,12 @@ import pandas as pd
 # Retorno
 
 df = pd.DataFrame(lista_retornos)
-writer = pd.ExcelWriter('1T.xlsx', engine='xlsxwriter')
+writer = pd.ExcelWriter('1F.xlsx', engine='xlsxwriter')
 df.to_excel(writer)
 writer.save()
 
 df2 = pd.DataFrame(lista_retornos_t)
-writer = pd.ExcelWriter('1F.xlsx', engine='xlsxwriter')
+writer = pd.ExcelWriter('1T.xlsx', engine='xlsxwriter')
 df2.to_excel(writer)
 writer.save()
 

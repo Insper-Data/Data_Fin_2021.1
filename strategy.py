@@ -434,7 +434,6 @@ def gen_return(combined, sinais):
     
     return combined3
 
-
 def gen_return_flexible(combined, sinais, hold_time):
     
     combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
@@ -474,7 +473,6 @@ def gen_return_flexible(combined, sinais, hold_time):
     combined3 = combined3.rename(columns = { 3: "Retornos acumulados"})
     
     return combined3
-
 
 def gen_return_sep(combined, sinais):
     
@@ -547,6 +545,25 @@ def graph_matplot(ganhograf, ganhografteste, combined2):
         
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     
+    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
+    
+    return fig
+
+def graph_matplot_(ganhograf, ganhografteste, combined2):
+    
+    ganhograf = pd.DataFrame(ganhograf)
+    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
+    ganhograf = ganhograf.set_index(combined2.index, inplace = False)
+        
+    ganhografteste = pd.DataFrame(ganhografteste)
+    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
+    ganhografteste = ganhografteste.set_index(combined2.index, inplace = False)
+    
+    ganhos_combined = ganhograf.merge(ganhografteste, on = 'date', how = 'right').dropna()
+    
+    plt.plot(ganhos_combined["Retorno da Estratégia 1"], color = "red")
+    plt.plot(ganhos_combined["Retorno do Buy and Hold"], color = "blue")
+
     ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
     
     return fig
