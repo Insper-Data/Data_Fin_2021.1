@@ -1,3 +1,5 @@
+# Apêndice
+
 import random
 import pandas as pd
 from pytrends.request import TrendReq
@@ -10,13 +12,12 @@ import basic_func as bf
 #pytrends = TrendReq(hl='pt-BR', tz=360)
 ## Se for puxar algo do Trends, descomentar isso
 
-# Fazendo resamples dos períodos e testando o sharpe
+#%% Fazendo resamples dos períodos e testando o sharpe
 ## Colocar o tamanho em porcentagem (ex: 10% do tamanho total da amostra)
 
+# Para o sinal 1
 def sharpe_test_1(combined, tam_p, qtde, inverso):
-    
-    # Para o sinal 1
-    
+        
     n = round(len(combined)*tam_p)
     vector1 = list(range(qtde))
     df = pd.DataFrame(range(n))
@@ -54,10 +55,9 @@ def sharpe_test_1(combined, tam_p, qtde, inverso):
     vector1 = pd.DataFrame(vector1)
     
     return vector1
-    
+
+# Para o sinal 2
 def sharpe_test_2(combined, tam_p, qtde, inverso):
-    
-    # Para o sinal 2
     
     n = round(len(combined)*tam_p)
     vector2 = list(range(qtde))
@@ -99,10 +99,9 @@ def sharpe_test_2(combined, tam_p, qtde, inverso):
     
     return vector2
     
+# Para o sinal 3
 def sharpe_test_3(combined, tam_p, qtde, dias, inverso):
-    
-    # Para o sinal 3
-    
+        
     n = round(len(combined)*tam_p)
     vector3 = list(range(qtde))
     df = pd.DataFrame(range(n))
@@ -143,10 +142,9 @@ def sharpe_test_3(combined, tam_p, qtde, dias, inverso):
     
     return vector3
     
+# Para o sinal 4
 def sharpe_test_4(combined, tam_p, qtde, dias, inverso):
-    
-    # Para o sinal 4
-    
+        
     n = round(len(combined)*tam_p)
     vector4 = list(range(qtde))
     df = pd.DataFrame(range(n))
@@ -187,7 +185,7 @@ def sharpe_test_4(combined, tam_p, qtde, dias, inverso):
     
     return vector4
 
-# Sharpe ajustado
+#%% Sharpe ajustado
     
 def sharpe_aj(combined2):
     
@@ -212,7 +210,8 @@ def sharpe_aj(combined2):
 
     return adj_sharpe_anualizado
 
-# Avaliar a normalização
+#%% Avaliar a normalização
+
 ## Via correlação média
     
 def av_corr_med(insert):

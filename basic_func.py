@@ -1,3 +1,5 @@
+# Funções Básicas
+
 import pandas as pd
 import yfinance as yf
 from pandas import DataFrame
@@ -7,19 +9,24 @@ from pytrends.request import TrendReq
 
 #pytrends = TrendReq(hl='pt-BR', tz=360)
 ## Se for puxar algum dado, descomentar isso
+## Ele demora muito se precisar puxar essa info toda vez
 
+#%% Função Google Trends Daily Data
 
-# Função Google Trends Daily Data
+# Pegar as janelas de datas
 
 def get_datas(startdate, overlap):
     
-    #Datas
+    # stardate é a data de início (ex.: 2016-01-01)
+    # overlap são quantos períodos teram iguais entre as janelas
+    
+    # Data mais recente
     hoje = date.today()
     startdate = datetime.strptime(startdate, '%Y-%m-%d').date()
-
-    startord = startdate.toordinal()
+    startord = startdate.toordinal() # Transformar em ordinário
     hojeord = hoje.toordinal()
 
+    # Quantidade de janelas
     qtde = math.floor(((hojeord-startord)-overlap-(268-overlap))/(268-overlap)+2)
 
     datas = list(range(qtde))
@@ -38,20 +45,20 @@ def get_datas(startdate, overlap):
             
     return datas, qtde
 
-
+# Puxando os dados do GT
 def get_google(palavra, startdate, overlap):
     
-    #Datas
+    # Datas
     datas, qtde = get_datas(startdate, overlap)
     
-    #Obter dados do pytrends
+    # Obter dados do pytrends
     kw_list = [palavra]
     dataframes = list(range(qtde))
     for i in range(qtde):
         pytrends.build_payload(kw_list, cat=0, timeframe = datas[i] , geo='BR', gprop='')
         dataframes[i] = pytrends.interest_over_time()
     
-    #Padronização dos dataframes
+    # Padronização dos dataframes
     mult = list(range(qtde-1))
     newdf = dataframes
 
@@ -61,7 +68,7 @@ def get_google(palavra, startdate, overlap):
         mult[i] = y.iloc[-overlap:, 0].max()/x.iloc[0:overlap-1, 0].max()
         newdf[i+1] = newdf[i+1]*mult[i]
         
-    #Unindo os dataframes
+    # Unindo os dataframes
     for i in range(qtde-1):
         if i < qtde:
             newdf[i].drop(newdf[i].tail(overlap).index, inplace = True)
@@ -88,14 +95,17 @@ def get_google(palavra, startdate, overlap):
     
     return superdf
    
-### Função Dados Financeiros
+#%% Função Dados Financeiros
 
+# Puxa os dados financeiros da base fornecida
 df_fin = pd.read_excel("dados fin.xlsx")
 df_assets = pd.DataFrame(df_fin.iloc[0,:].dropna())
 
-#%%
+# Puxando o ativo da base
 def get_stocks(ativo):
         
+    # O usuário não precisa inserir o ticker exato do ativo
+    ## Escolhe de acordo com o índice da lista
     search = df_assets[df_assets.index.str.contains(ativo.upper())]
     search.reset_index()
     display(search)
@@ -122,6 +132,8 @@ def get_stocks(ativo):
     return time_price
 
 def alt_get_stocks(ativo):
+    
+    # Caso o usuário vá inserir o ticker exato do ativo
      
     search = df_assets[df_assets.index.str.contains(ativo)]
     search.reset_index()
@@ -146,6 +158,7 @@ def alt_get_stocks(ativo):
 
     return time_price
 
+# Puxando dados do Yahoo Finance (caso necessário)
 def get_yahoo(ticker_name):
     stock = yf.Ticker(ticker_name)
     
@@ -157,6 +170,7 @@ def get_yahoo(ticker_name):
     
     return yahoodf
 
+#%% Unir a base com os dados do GT e financeiros
 def join(trends, stocks):
     combined = trends.merge(stocks, on = 'date', how = 'right').dropna()
 
@@ -166,6 +180,8 @@ def join(trends, stocks):
     
     return combined
 
+#%% Retorno dos ativos
+    
 def retorno(time_price):
     preço = list(range(len(time_price))) 
     for i in range(len(time_price)):
@@ -176,6 +192,8 @@ def retorno(time_price):
         retorno[i]= (preço[i]-preço[i-1])/preço[i-1]
     
     return retorno
+
+#%% Sharpe anualizado
 
 def sharpe_aa(dados):
     dados = pd.DataFrame(dados)
@@ -192,6 +210,3 @@ def sharpe_aa(dados):
     sharpe_anualizado = (252**(1/2))*sharpe
     
     return sharpe_anualizado
-
-
-

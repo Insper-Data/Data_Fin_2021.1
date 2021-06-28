@@ -1,6 +1,9 @@
+# Criando tabelas já com os dados do GT
+## Não precisa ficar puxando do API toda vez
+
 import basic_func as bf
 
-## Puxando a palavra do GT
+#%% Puxando a palavra do GT
 
 inicio = '2016-01-01'
 
@@ -119,7 +122,8 @@ cerveja = bf.get_google(palavra = "cerveja", startdate = inicio, overlap = 45)
 
 estagio = bf.get_google(palavra = "estagio", startdate = inicio, overlap = 45)
 
-## Passando as listas para o excel
+#%% Passando as listas para o excel
+
 abev3.to_excel("abev3.xlsx")
 alimentos.to_excel("alimentos.xlsx")
 ambev.to_excel("ambev.xlsx")
@@ -179,30 +183,3 @@ varejo.to_excel("varejo.xlsx")
 viajar.to_excel("viajar.xlsx")
 vvar3.to_excel("vvar3.xlsx")
 xp.to_excel("xp.xlsx")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

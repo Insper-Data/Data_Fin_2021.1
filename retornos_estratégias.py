@@ -1,6 +1,10 @@
+# Testando os ativos para as palavras selecionadas
+
 import pandas as pd
 import basic_func as bf
 import strategy as strat 
+
+#%% Ajeitando
 
 inicio = '2016-01-02'
 
@@ -317,6 +321,8 @@ lista_sharpe_5 = [sharpe_petr4_5, sharpe_vale3_5, sharpe_bbdc4_5, sharpe_itub4_5
                   sharpe_abev3_5, sharpe_bvsp_5]
 
 
+#%% Fazendo as estratégias
+
 for i in range(len(lista_retornos)):
     
     for j in range(len(words)):
@@ -446,4 +452,3 @@ for i in range(len(lista_retornos)):
         sharpe_5 = bf.sharpe_aa(ganhoestrat_5)
         lista_sharpe_5[i].append(sharpe_5)
       
-    

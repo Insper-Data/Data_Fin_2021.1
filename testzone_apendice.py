@@ -1,7 +1,9 @@
+# Testzone para o apêndice
+
 import apendice as ap
 import matplotlib.pyplot as plt
 
-# Plotando os sharp_test
+#%% Plotando os sharp_test
 
 ## Sinal 1
 
@@ -43,15 +45,7 @@ plt.xlabel('Sharpe')
 plt.title('Para o Sinal 4')
 plt.show()
 
-# Avaliando a normalização via correlação média
+#%% Avaliando a normalização via correlação média
 ## Se quer ver a avaliação, insira 1
 
 ap.av_corr_med(insert = 0)
-
-
-
-
-
-
-
-

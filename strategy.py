@@ -1,3 +1,5 @@
+# Estratégias
+
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -7,8 +9,9 @@ import numpy as np
 
 #pytrends = TrendReq(hl='pt-BR', tz=360)
 ## Se for puxar algum dado, descomentar isso
+## Ele demora muito se precisar puxar essa info toda vez
 
-### Ganho seguindo o Buy and Hold
+#%% Ganho seguindo o Buy and Hold
 
 def buy_hold(combined):
         
@@ -39,8 +42,9 @@ def buy_hold(combined):
         
     return grafbh
 
-# Usando a estratégia do Quantifying Trading Behaviour
+#%% Estratégias 
 
+# Estratégia 1: Quantifying Trading Behaviour (paper)
 def sinal1(combined, inverso):
     
     dados_trends = pd.DataFrame(combined.iloc[:,0])
@@ -93,8 +97,8 @@ def sinal1(combined, inverso):
         
     return ind
 
-# Estratégia do papaer alemão (híbrida)
-
+# Estratégia 2: híbrida
+## Usa momentum
 def sinal2(combined, inverso):
     
     tamanho_trends = len(combined)
@@ -186,8 +190,7 @@ def sinal2(combined, inverso):
         
     return ind
 
-# Estratégia híbrida com médias móveis
-
+# Estratégia 3: híbrida com médias móveis
 def sinal3(combined, inverso, dias):
     
     tamanho_trends = len(combined)
@@ -271,8 +274,8 @@ def sinal3(combined, inverso, dias):
         
     return ind
 
-# Estratégia com insipiração o projeto de finanças de 2020.2
-
+# Estratégia 4: médias móveis tanto dos preços quanto das pesquisas
+## Insipiração o projeto de finanças de 2020.2
 def sinal4(combined, inverso, dias):
     
     tamanho = len(combined)
@@ -352,311 +355,10 @@ def sinal4(combined, inverso, dias):
         
     return ind
 
-def gen_return_edit(combined, sinais):
+# Estratégia 5: GT apenas como acelerador
+## Incorpora a opção de não comprar nem vender
+def sinal5(combined):
     
-    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
-    
-    datas = list(combined2.index) #Salvando o index
-    datas = datas[1:]
-    
-    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
-
-    for i in range(len(combined2)-2):
-        if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
-            retorno_est1[i+1] = (combined2.iloc[i+2,1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
-        elif combined2.iloc[i,2] == "DO NOTHING":
-            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
-        else:
-            retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+2,1])/combined2.iloc[i+2,1]
-        
-    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
-    
-    # Ganho acumulado da estratégia 
-    gain = 1 
-
-    for i in range(1,len(retorno_est1)):
-        gain = gain*(1+retorno_est1.iloc[i,0])
-    print(gain)
-
-    # Visualização gráfica
-    ganhograf = list(range(len(retorno_est1)))
-    ganhograf[0] = 1
-
-    for i in range(len(retorno_est1)-1):
-        ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
-        
-    copia_ganhograf = ganhograf.copy()
-        
-    ganhograf = pd.DataFrame(ganhograf, index = datas) #Transforma a série de retornos acumulados em DF
-    
-    combined3 = combined2.merge(ganhograf, left_index = True, right_index = True) #Junta trends, preços, sinais e retornos
-    combined3 = combined3.rename(columns = { 3: "Retornos acumulados"})
-    
-    return copia_ganhograf, combined3
-
-def gen_return(combined, sinais):
-    
-    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
-    
-    datas = list(combined2.index) #Salvando o index
-    datas = datas[1:]
-    
-    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
-
-    for i in range(len(combined2)-2):
-        if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
-            retorno_est1[i+1] = (combined2.iloc[i+2,1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
-        elif combined2.iloc[i,2] == "DO NOTHING":
-            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
-        else:
-            retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+2,1])/combined2.iloc[i+2,1]
-        
-    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
-    
-    # Ganho acumulado da estratégia 
-    gain = 1 
-
-    for i in range(1,len(retorno_est1)):
-        gain = gain*(1+retorno_est1.iloc[i,0])
-    print(gain)
-
-    # Visualização gráfica
-    ganhograf = list(range(len(retorno_est1)))
-    ganhograf[0] = 1
-
-    for i in range(len(retorno_est1)-1):
-        ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
-        
-    ganhograf = pd.DataFrame(ganhograf, index = datas) #Transforma a série de retornos acumulados em DF
-    
-    combined3 = combined2.merge(ganhograf, left_index = True, right_index = True) #Junta trends, preços, sinais e retornos
-    combined3 = combined3.rename(columns = { 3: "Retornos acumulados"})
-    
-    return combined3
-
-def gen_return_flexible(combined, sinais, hold_time):
-    
-    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
-    
-    datas = list(combined2.index) #Salvando o index
-    datas = datas[1:]
-    
-    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
-
-    for i in range(len(combined2)-(1 + hold_time)):
-        if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
-            retorno_est1[i+1] = (combined2.iloc[i+(1+hold_time),1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
-        elif combined2.iloc[i,2] == "DO NOTHING":
-            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
-        else:
-            retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+(1+hold_time),1])/combined2.iloc[i+(1+hold_time),1]
-        
-    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
-    
-    # Ganho acumulado da estratégia 
-    gain = 1 
-
-    for i in range(1,len(retorno_est1)):
-        gain = gain*(1+retorno_est1.iloc[i,0])
-    print(gain)
-
-    # Visualização gráfica
-    ganhograf = list(range(len(retorno_est1)))
-    ganhograf[0] = 1
-
-    for i in range(len(retorno_est1)-1):
-        ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
-        
-    ganhograf = pd.DataFrame(ganhograf, index = datas) #Transforma a série de retornos acumulados em DF
-    
-    combined3 = combined2.merge(ganhograf, left_index = True, right_index = True) #Junta trends, preços, sinais e retornos
-    combined3 = combined3.rename(columns = { 3: "Retornos acumulados"})
-    
-    return combined3
-
-def gen_return_sep(combined, sinais):
-    
-    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
-        
-    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
-
-    for i in range(len(combined2)-2):
-        if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
-            retorno_est1[i+1] = (combined2.iloc[i+2,1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
-        elif combined2.iloc[i,2] == "DO NOTHING":
-            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
-        else:
-            retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+2,1])/combined2.iloc[i+2,1]
-        
-    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
-    
-    # Ganho acumulado da estratégia 
-    gain = 1 
-
-    for i in range(1,len(retorno_est1)):
-        gain = gain*(1+retorno_est1.iloc[i,0])
-    print(gain)
-
-    # Visualização gráfica
-    ganhograf = list(range(len(retorno_est1)))
-    ganhograf[0] = 1
-
-    for i in range(len(retorno_est1)-1):
-        ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
-      
-    combined2 = combined2.iloc[1:]
-    
-    return ganhograf, combined2
-
-
-def graph_matplot(ganhograf, ganhografteste, combined2):
-    
-    ganhograf = pd.DataFrame(ganhograf)
-    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
-    ganhograf = ganhograf.set_index(combined2.index, inplace = False)
-        
-    ganhografteste = pd.DataFrame(ganhografteste)
-    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
-    ganhografteste = ganhografteste.set_index(combined2.index, inplace = False)
-    
-    ganhos_combined = ganhograf.merge(ganhografteste, on = 'date', how = 'right').dropna()
-    
-    # Create some mock data
-    t = ganhos_combined.index
-    data1 = ganhos_combined['Retorno da Estratégia 1']
-    data2 = ganhos_combined['Retorno do Buy and Hold']
-    
-    fig, ax1 = plt.subplots()
-    
-    color = 'tab:red'
-    ax1.set_xlabel('time (s)')
-    ax1.set_ylabel('Retorno da Estratégia 1', color=color)
-    ax1.plot(t, data1, color=color)
-    ax1.tick_params(axis='y', labelcolor=color)
-    
-    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-    
-    color = 'tab:blue'
-    ax2.set_ylabel('Retorno do Buy and Hold', color=color)  # we already handled the x-label with ax1
-    ax2.plot(t, data2, color=color)
-    ax2.tick_params(axis='y', labelcolor=color)
-    
-    ax2.set(title='Retornos acumulados')
-        
-    fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    
-    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
-    
-    return fig
-
-def graph_matplot_(ganhograf, ganhografteste, combined2, cor):
-    
-    ganhograf = pd.DataFrame(ganhograf)
-    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
-    ganhograf = ganhograf.set_index(combined2.index, inplace = False)
-        
-    ganhografteste = pd.DataFrame(ganhografteste)
-    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
-    ganhografteste = ganhografteste.set_index(combined2.index, inplace = False)
-    
-    ganhos_combined = ganhograf.merge(ganhografteste, on = 'date', how = 'right').dropna()
-    
-    plt.plot(ganhos_combined["Retorno da Estratégia 1"], color = cor)
-    plt.plot(ganhos_combined["Retorno do Buy and Hold"], color = "black")
-    plt.ylabel("Retorno")
-    plt.legend(loc = 'best')
-
-    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
-    
-def graph_one(combined3, ganhografteste):
-    
-    ganhograf = combined3.iloc[:, 3]
-    ganhograf = pd.DataFrame(ganhograf)
-    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
-    ganhograf = ganhograf.set_index(combined3.index, inplace = False)
-        
-    ganhografteste = pd.DataFrame(ganhografteste)
-    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
-    ganhografteste = ganhografteste.set_index(combined3.index, inplace = False)
-    
-    ganhos_combined = ganhograf.merge(ganhografteste, left_index = True, right_index = True).dropna()
-    
-    # Create some mock data
-    t = ganhos_combined.index
-    data1 = ganhos_combined['Retorno da Estratégia 1']
-    data2 = ganhos_combined['Retorno do Buy and Hold']
-    
-    fig, ax1 = plt.subplots()
-    
-    color = 'tab:red'
-    ax1.set_xlabel('time (s)')
-    ax1.set_ylabel('Retorno da Estratégia 1', color=color)
-    ax1.plot(t, data1, color=color)
-    ax1.tick_params(axis='y', labelcolor=color)
-    
-    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-    
-    color = 'tab:blue'
-    ax2.set_ylabel('Retorno do Buy and Hold', color=color)  # we already handled the x-label with ax1
-    ax2.plot(t, data2, color=color)
-    ax2.tick_params(axis='y', labelcolor=color)
-    
-    ax2.set(title='Retornos acumulados')
-    
-    fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    
-    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
-    
-    return fig
-
-# Essa função é exatamente igual a anterior
-## A diferença é que o combined3 agora tem uma coluna a mais (volume)
-## Mudei isso no primeira linha do código da função
-
-def graph_one_vol(combined3, ganhografteste):
-    
-    ganhograf = combined3.iloc[:, 4]
-    ganhograf = pd.DataFrame(ganhograf)
-    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
-    ganhograf = ganhograf.set_index(combined3.index, inplace = False)
-        
-    ganhografteste = pd.DataFrame(ganhografteste)
-    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
-    ganhografteste = ganhografteste.set_index(combined3.index, inplace = False)
-    
-    ganhos_combined = ganhograf.merge(ganhografteste, left_index = True, right_index = True).dropna()
-    
-    # Create some mock data
-    t = ganhos_combined.index
-    data1 = ganhos_combined['Retorno da Estratégia 1']
-    data2 = ganhos_combined['Retorno do Buy and Hold']
-    
-    fig, ax1 = plt.subplots()
-    
-    color = 'tab:red'
-    ax1.set_xlabel('time (s)')
-    ax1.set_ylabel('Retorno da Estratégia 1', color=color)
-    ax1.plot(t, data1, color=color)
-    ax1.tick_params(axis='y', labelcolor=color)
-    
-    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-    
-    color = 'tab:blue'
-    ax2.set_ylabel('Retorno do Buy and Hold', color=color)  # we already handled the x-label with ax1
-    ax2.plot(t, data2, color=color)
-    ax2.tick_params(axis='y', labelcolor=color)
-    
-    ax2.set(title='Retornos acumulados')
-    
-    fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    
-    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
-    
-    return fig
-
-#Estratégia do acelerador
-
-def sinal_acelerador(combined):
     #Combined é um dataframe com preços da ação e tendência do Google
     #Inverso é a opção de inverter (true or false) os sinais gerados
     
@@ -744,11 +446,10 @@ def sinal_acelerador(combined):
         
     return ind
 
-# Função utilizando o volume de negociações como validador
+# Estratégia 6: volume como validador do GT
 ## Se o volume de negociações sobe mais do que o desvpad, faz a estratégia do paper
 ## Use a função GET_YAHOO para imputar o "combined"
-    
-def sinal_volume1(combined, inverso):
+def sinal6(combined, inverso):
     
     # Para o trends
     
@@ -822,5 +523,317 @@ def sinal_volume1(combined, inverso):
     ind = ind.set_index(dados_trends.index, inplace = False)
     
     return ind
-        
+
+#%% Funções de retornos para as estratégias        
+
+def gen_return(combined, sinais):
     
+    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
+    
+    datas = list(combined2.index) #Salvando o index
+    datas = datas[1:]
+    
+    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
+
+    for i in range(len(combined2)-2):
+        if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
+            retorno_est1[i+1] = (combined2.iloc[i+2,1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
+        elif combined2.iloc[i,2] == "DO NOTHING":
+            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
+        else:
+            retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+2,1])/combined2.iloc[i+2,1]
+        
+    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
+    
+    # Ganho acumulado da estratégia 
+    gain = 1 
+
+    for i in range(1,len(retorno_est1)):
+        gain = gain*(1+retorno_est1.iloc[i,0])
+    print(gain)
+
+    # Visualização gráfica
+    ganhograf = list(range(len(retorno_est1)))
+    ganhograf[0] = 1
+
+    for i in range(len(retorno_est1)-1):
+        ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
+        
+    ganhograf = pd.DataFrame(ganhograf, index = datas) #Transforma a série de retornos acumulados em DF
+    
+    combined3 = combined2.merge(ganhograf, left_index = True, right_index = True) #Junta trends, preços, sinais e retornos
+    combined3 = combined3.rename(columns = { 3: "Retornos acumulados"})
+    
+    return combined3
+
+# Retorna também uma lista com os retornos diários
+## Não funciona pra estratégia 5
+def gen_return_sep(combined, sinais):
+    
+    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
+        
+    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
+
+    for i in range(len(combined2)-2):
+        if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
+            retorno_est1[i+1] = (combined2.iloc[i+2,1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
+        elif combined2.iloc[i,2] == "DO NOTHING":
+            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
+        else:
+            retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+2,1])/combined2.iloc[i+2,1]
+        
+    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
+    
+    # Ganho acumulado da estratégia 
+    gain = 1 
+
+    for i in range(1,len(retorno_est1)):
+        gain = gain*(1+retorno_est1.iloc[i,0])
+    print(gain)
+
+    # Visualização gráfica
+    ganhograf = list(range(len(retorno_est1)))
+    ganhograf[0] = 1
+
+    for i in range(len(retorno_est1)-1):
+        ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
+      
+    combined2 = combined2.iloc[1:]
+    
+    return ganhograf, combined2
+
+# Editado para funcionar na estratégia 5
+def gen_return_edit(combined, sinais):
+    
+    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
+    
+    datas = list(combined2.index) #Salvando o index
+    datas = datas[1:]
+    
+    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
+
+    for i in range(len(combined2)-2):
+        if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
+            retorno_est1[i+1] = (combined2.iloc[i+2,1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
+        elif combined2.iloc[i,2] == "DO NOTHING":
+            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
+        else:
+            retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+2,1])/combined2.iloc[i+2,1]
+        
+    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
+    
+    # Ganho acumulado da estratégia 
+    gain = 1 
+
+    for i in range(1,len(retorno_est1)):
+        gain = gain*(1+retorno_est1.iloc[i,0])
+    print(gain)
+
+    # Visualização gráfica
+    ganhograf = list(range(len(retorno_est1)))
+    ganhograf[0] = 1
+
+    for i in range(len(retorno_est1)-1):
+        ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
+        
+    copia_ganhograf = ganhograf.copy()
+        
+    ganhograf = pd.DataFrame(ganhograf, index = datas) #Transforma a série de retornos acumulados em DF
+    
+    combined3 = combined2.merge(ganhograf, left_index = True, right_index = True) #Junta trends, preços, sinais e retornos
+    combined3 = combined3.rename(columns = { 3: "Retornos acumulados"})
+    
+    return copia_ganhograf, combined3
+
+#%% Gerando os gráficos
+
+# Cria escalas diferentes para o buy and hold e para a estratégia
+def graph_matplot(ganhograf, ganhografteste, combined2):
+    
+    ganhograf = pd.DataFrame(ganhograf)
+    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
+    ganhograf = ganhograf.set_index(combined2.index, inplace = False)
+        
+    ganhografteste = pd.DataFrame(ganhografteste)
+    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
+    ganhografteste = ganhografteste.set_index(combined2.index, inplace = False)
+    
+    ganhos_combined = ganhograf.merge(ganhografteste, on = 'date', how = 'right').dropna()
+    
+    # Create some mock data
+    t = ganhos_combined.index
+    data1 = ganhos_combined['Retorno da Estratégia 1']
+    data2 = ganhos_combined['Retorno do Buy and Hold']
+    
+    fig, ax1 = plt.subplots()
+    
+    color = 'tab:red'
+    ax1.set_xlabel('time (s)')
+    ax1.set_ylabel('Retorno da Estratégia 1', color=color)
+    ax1.plot(t, data1, color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
+    
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    
+    color = 'tab:blue'
+    ax2.set_ylabel('Retorno do Buy and Hold', color=color)  # we already handled the x-label with ax1
+    ax2.plot(t, data2, color=color)
+    ax2.tick_params(axis='y', labelcolor=color)
+    
+    ax2.set(title='Retornos acumulados')
+        
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    
+    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
+    
+    return fig
+
+# Deixa ambos na mesma escala
+def graph_matplot_(ganhograf, ganhografteste, combined2, cor):
+    
+    ganhograf = pd.DataFrame(ganhograf)
+    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
+    ganhograf = ganhograf.set_index(combined2.index, inplace = False)
+        
+    ganhografteste = pd.DataFrame(ganhografteste)
+    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
+    ganhografteste = ganhografteste.set_index(combined2.index, inplace = False)
+    
+    ganhos_combined = ganhograf.merge(ganhografteste, on = 'date', how = 'right').dropna()
+    
+    plt.plot(ganhos_combined["Retorno da Estratégia 1"], color = cor)
+    plt.plot(ganhos_combined["Retorno do Buy and Hold"], color = "black")
+    plt.ylabel("Retorno")
+    plt.legend(loc = 'best')
+
+    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
+
+def graph_one(combined3, ganhografteste):
+    
+    ganhograf = combined3.iloc[:, 3]
+    ganhograf = pd.DataFrame(ganhograf)
+    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
+    ganhograf = ganhograf.set_index(combined3.index, inplace = False)
+        
+    ganhografteste = pd.DataFrame(ganhografteste)
+    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
+    ganhografteste = ganhografteste.set_index(combined3.index, inplace = False)
+    
+    ganhos_combined = ganhograf.merge(ganhografteste, left_index = True, right_index = True).dropna()
+    
+    # Create some mock data
+    t = ganhos_combined.index
+    data1 = ganhos_combined['Retorno da Estratégia 1']
+    data2 = ganhos_combined['Retorno do Buy and Hold']
+    
+    fig, ax1 = plt.subplots()
+    
+    color = 'tab:red'
+    ax1.set_xlabel('time (s)')
+    ax1.set_ylabel('Retorno da Estratégia 1', color=color)
+    ax1.plot(t, data1, color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
+    
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    
+    color = 'tab:blue'
+    ax2.set_ylabel('Retorno do Buy and Hold', color=color)  # we already handled the x-label with ax1
+    ax2.plot(t, data2, color=color)
+    ax2.tick_params(axis='y', labelcolor=color)
+    
+    ax2.set(title='Retornos acumulados')
+    
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    
+    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
+    
+    return fig
+
+# Essa função é exatamente igual a anterior
+## A diferença é que o combined3 agora tem uma coluna a mais (volume)
+## Mudei isso no primeira linha do código da função
+def graph_one_vol(combined3, ganhografteste):
+    
+    ganhograf = combined3.iloc[:, 4]
+    ganhograf = pd.DataFrame(ganhograf)
+    ganhograf = ganhograf.rename(columns={ 0: 'Retorno da Estratégia 1'}) 
+    ganhograf = ganhograf.set_index(combined3.index, inplace = False)
+        
+    ganhografteste = pd.DataFrame(ganhografteste)
+    ganhografteste = ganhografteste.rename(columns={ 0: 'Retorno do Buy and Hold'}) 
+    ganhografteste = ganhografteste.set_index(combined3.index, inplace = False)
+    
+    ganhos_combined = ganhograf.merge(ganhografteste, left_index = True, right_index = True).dropna()
+    
+    # Create some mock data
+    t = ganhos_combined.index
+    data1 = ganhos_combined['Retorno da Estratégia 1']
+    data2 = ganhos_combined['Retorno do Buy and Hold']
+    
+    fig, ax1 = plt.subplots()
+    
+    color = 'tab:red'
+    ax1.set_xlabel('time (s)')
+    ax1.set_ylabel('Retorno da Estratégia 1', color=color)
+    ax1.plot(t, data1, color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
+    
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+    
+    color = 'tab:blue'
+    ax2.set_ylabel('Retorno do Buy and Hold', color=color)  # we already handled the x-label with ax1
+    ax2.plot(t, data2, color=color)
+    ax2.tick_params(axis='y', labelcolor=color)
+    
+    ax2.set(title='Retornos acumulados')
+    
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    
+    ganhografteste = ganhografteste.drop(ganhografteste.tail(1).index, inplace = False) # Dropei a linha adicionada  
+    
+    return fig
+
+#%% Rascunho
+
+# Editar tempo que segura o ativo
+def gen_return_flexible(combined, sinais, hold_time):
+    
+    combined2 = combined.merge(sinais, on = 'date', how = 'right').dropna() #Une os sinais com Trends e preços (stock)
+    
+    datas = list(combined2.index) #Salvando o index
+    datas = datas[1:]
+    
+    retorno_est1 = list(range(len(combined2)-1)) #Diminui 1 em tamanho pois o primeiro dia não tem trade
+
+    for i in range(len(combined2)-(1 + hold_time)):
+        if combined2.iloc[i,2] == "buy p(t+1); sell p(t+2) - LONG":
+            retorno_est1[i+1] = (combined2.iloc[i+(1+hold_time),1] - combined2.iloc[i+1,1])/combined2.iloc[i+1,1]
+        elif combined2.iloc[i,2] == "DO NOTHING":
+            retorno_est1[i+1] = 0   #Possivelmente adicionar retorno diário de uma carteira passiva
+        else:
+            retorno_est1[i+1] = (combined2.iloc[i+1,1] - combined2.iloc[i+(1+hold_time),1])/combined2.iloc[i+(1+hold_time),1]
+        
+    retorno_est1 = pd.DataFrame(retorno_est1) #Transformando os retornos diários em dataframe
+    
+    # Ganho acumulado da estratégia 
+    gain = 1 
+
+    for i in range(1,len(retorno_est1)):
+        gain = gain*(1+retorno_est1.iloc[i,0])
+    print(gain)
+
+    # Visualização gráfica
+    ganhograf = list(range(len(retorno_est1)))
+    ganhograf[0] = 1
+
+    for i in range(len(retorno_est1)-1):
+        ganhograf[i+1] = ganhograf[i]*(1+retorno_est1.iloc[i,0])
+        
+    ganhograf = pd.DataFrame(ganhograf, index = datas) #Transforma a série de retornos acumulados em DF
+    
+    combined3 = combined2.merge(ganhograf, left_index = True, right_index = True) #Junta trends, preços, sinais e retornos
+    combined3 = combined3.rename(columns = { 3: "Retornos acumulados"})
+    
+    return combined3
+
+

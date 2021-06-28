@@ -1,7 +1,9 @@
+# Área de testes
+
 import basic_func as bf
 import strategy as strat 
 
-#Puxando dados
+#%% Puxando dados
 inicio = '2016-01-02'
 
 trends = bf.get_google(palavra = "abev3", startdate = inicio, overlap = 45)
@@ -10,61 +12,66 @@ stocks = bf.get_stocks(ativo = "BVSP")
 
 combined = bf.join(trends = trends, stocks = stocks)
 
-#Gerando os sinais
-sinal_est1 = strat.sinal1(combined = combined, inverso = False)
+#%% Buy and Hold
 
-#Processando sinais em retorno
-ganhoestrat, combined2 = strat.gen_return_sep(combined = combined, sinais = sinal_est1)
-
-#Benchmark Buy-n-Hold
 buyhold = strat.buy_hold(combined)
 
-#Graficando
-plim = strat.graph_matplot(ganhoestrat, buyhold, combined2)
+#%% Estraégias
 
-plim.show()
+# Estratégia 1
 
-#Testando o sinal híbrido
+## Gerando sinais
+sinal_est1 = strat.sinal1(combined = combined, inverso = False)
 
-sinal_teste = strat.sinal2(combined = combined, inverso = False)
+## Processando sinais em retorno
+ganhoestrat, combined2 = strat.gen_return_sep(combined = combined, sinais = sinal_est1)
 
-ganho_teste, combined2_teste = strat.gen_return_sep(combined = combined, sinais = sinal_teste)
+## Graficando
+grafico = strat.graph_matplot(ganhoestrat, buyhold, combined2)
 
-plim_acelerador = strat.graph_matplot(ganho_teste, buyhold, combined2_teste)
+grafico.show()
 
-plim_acelerador.show()
+# Estratégia 2
 
-#Testando o sinal das médias móveis
+sinal_est2 = strat.sinal2(combined = combined, inverso = False)
 
-sinal_teste = strat.sinal3(combined = combined, inverso = False, dias = 21)
+ganho_est2, combined2 = strat.gen_return_sep(combined = combined, sinais = sinal_est2)
 
-ganho_teste, combined2_teste = strat.gen_return_sep(combined = combined, sinais = sinal_teste)
+grafico = strat.graph_matplot(ganho_est2, buyhold, combined2)
 
-plim_acelerador = strat.graph_matplot(ganho_teste, buyhold, combined2_teste)
+grafico.show()
 
-plim_acelerador.show()
+# Estratégia 3
 
-#Testando o sinal das médias móveis para preços e pesquisas (projeto 2020.2)
+sinal_est3 = strat.sinal3(combined = combined, inverso = False, dias = 21)
 
-sinal_teste = strat.sinal4(combined = combined, inverso = False, dias = 21)
+ganho_est3, combined2= strat.gen_return_sep(combined = combined, sinais = sinal_est3)
 
-ganho_teste, combined2_teste = strat.gen_return_sep(combined = combined, sinais = sinal_teste)
+grafico = strat.graph_matplot(ganho_est3, buyhold, combined2)
 
-plim_acelerador = strat.graph_matplot(ganho_teste, buyhold, combined2_teste)
+grafico.show()
 
-plim_acelerador.show()
+# Estratégia 4
 
-#Testando o sinal do acelerador
+sinal_est4 = strat.sinal4(combined = combined, inverso = False, dias = 21)
 
-sinal_teste = strat.sinal_acelerador(combined = combined)
+ganho_est4, combined2_est4 = strat.gen_return_sep(combined = combined, sinais = sinal_est4)
 
-combined3 = strat.gen_return(combined = combined, sinais = sinal_teste)
+grafico  = strat.graph_matplot(ganho_est4, buyhold, combined2_est4)
 
-plim_acelerador = strat.graph_one(combined3, buyhold)
+grafico.show()
 
-plim_acelerador.show() 
+# Estratégia 5
 
-# Testando o sinal1 do validado pelo volume
+sinal_est5 = strat.sinal5(combined = combined)
+
+combined3 = strat.gen_return(combined = combined, sinais = sinal_est5)
+
+grafico = strat.graph_one(combined3, buyhold)
+
+grafico.show() 
+
+# Estratégia 6
 
 stocks_y = bf.get_yahoo("^BVSP")
 
@@ -72,12 +79,11 @@ combined_y = bf.join(trends = trends, stocks = stocks_y)
 
 buyhold_y = strat.buy_hold(combined_y)
 
-sinal_teste = strat.sinal_volume1(combined = combined_y, inverso = False)
+sinal_est6 = strat.sinal6(combined = combined_y, inverso = False)
     # N sei pq mas o inverso ser True ou False n muda o resultado
 
-combined3_y = strat.gen_return(combined = combined_y, sinais = sinal_teste)
+combined3_y = strat.gen_return(combined = combined_y, sinais = sinal_est6)
 
-plim_acelerador = strat.graph_one_vol(combined3_y, buyhold_y)
+grafico = strat.graph_one_vol(combined3_y, buyhold_y)
 
-plim_acelerador.show() 
-
+grafico.show() 

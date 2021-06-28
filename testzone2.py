@@ -1,3 +1,6 @@
+# Testozone usando os dados já extraidos do GT
+## Disponíveis no Excel
+
 import basic_func as bf
 import strategy as strat 
 import pandas as pd
@@ -5,15 +8,15 @@ import pandas as pd
 #Puxando dados
 inicio = '2016-01-02'
 
-trends = pd.read_excel(f'Dados/cerveja.xlsx')
+trends = pd.read_excel(f'Dados/inflacao.xlsx') # Mudar aqui
 trends = trends.set_index('date')
 
-stocks = bf.get_stocks(ativo = "abev")
+stocks = bf.get_stocks(ativo = "bvsp")
 
 combined = bf.join(trends = trends, stocks = stocks)
 
 #Gerando os sinais
-sinal_est1 = strat.sinal1(combined = combined, inverso = True)
+sinal_est1 = strat.sinal1(combined = combined, inverso = False)
 
 #Processando sinais em retorno
 ganhoestrat, combined2 = strat.gen_return_sep(combined = combined, sinais = sinal_est1)
@@ -26,7 +29,7 @@ plim = strat.graph_matplot_(ganhoestrat, buyhold, combined2, cor = "red")
 
 #Testando o sinal híbrido
 
-sinal_teste = strat.sinal2(combined = combined, inverso = True)
+sinal_teste = strat.sinal2(combined = combined, inverso = False)
 
 ganho_teste, combined2_teste = strat.gen_return_sep(combined = combined, sinais = sinal_teste)
 
@@ -34,7 +37,7 @@ plim_acelerador = strat.graph_matplot_(ganho_teste, buyhold, combined2_teste, co
 
 #Testando o sinal das médias móveis
 
-sinal_teste = strat.sinal3(combined = combined, inverso = True, dias = 21)
+sinal_teste = strat.sinal3(combined = combined, inverso = False, dias = 21)
 
 ganho_teste1, combined2_teste = strat.gen_return_sep(combined = combined, sinais = sinal_teste)
 
@@ -42,7 +45,7 @@ plim_acelerador = strat.graph_matplot_(ganho_teste1, buyhold, combined2_teste, c
 
 #Testando o sinal das médias móveis para preços e pesquisas (projeto 2020.2)
 
-sinal_teste = strat.sinal4(combined = combined, inverso = True, dias = 21)
+sinal_teste = strat.sinal4(combined = combined, inverso = False, dias = 21)
 
 ganho_teste2, combined2_teste = strat.gen_return_sep(combined = combined, sinais = sinal_teste)
 
@@ -50,14 +53,14 @@ plim_acelerador = strat.graph_matplot_(ganho_teste2, buyhold, combined2_teste, c
 
 #Testando o sinal do acelerador
 
-sinal_teste = strat.sinal_acelerador(combined = combined)
+sinal_teste = strat.sinal5(combined = combined)
 
 combined3 = strat.gen_return(combined = combined, sinais = sinal_teste)
 
 plim_acelerador = strat.graph_one(combined3, buyhold)
 
 ###
-sinal_est5 = strat.sinal_acelerador(combined = combined)
+sinal_est5 = strat.sinal5(combined = combined)
 
 ganhoestrat_5, combined3 = strat.gen_return_edit(combined = combined, sinais = sinal_est5)
 
